@@ -205,7 +205,6 @@ last_emotion = None
 last_trigger_time = 0
 COOLDOWN_SECONDS = 5
 
-
 def get_smoothed_emotion(buffer):
     if not buffer:
         return ""
@@ -224,7 +223,15 @@ try:
             st.error("❌ Could not read from webcam")
             break
 
+        # Face detection
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # Draw rectangles around detected faces
+        for (x, y, w, h) in faces:
+            cv2.rectangle(rgb_frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         current_time = time.time()
         cooldown_remaining = max(0, int(COOLDOWN_SECONDS - (current_time - last_trigger_time)))
